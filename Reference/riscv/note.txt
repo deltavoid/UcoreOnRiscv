@@ -1,0 +1,284 @@
+
+
+riscv-sepc-v2.2
+
+    introduction
+
+    RV32I
+
+        Programmers’ Model for Base Integer Subset
+
+        Base Instruction Formats
+
+        Immediate Encoding Variants
+
+        Integer Computational Instructions
+
+        Control Transfer Instructions
+
+        Load and Store Instructions
+
+        Memory Model
+
+        Control and Status Register Instructions
+
+        Environment Call and Breakpoints
+
+
+    RV64I
+
+    Atomic
+
+    User Level Interrupts
+
+
+
+
+
+
+
+
+编程模型
+
+    寄存器
+
+        x0 - x31  +   pc
+
+    指令集
+
+        计算指令集
+
+            加减
+
+            与，或，异或
+
+            左移， 右移
+
+            比较
+
+        跳转指令集
+
+            无条件跳转
+
+            有条件跳转
+
+        内存存取指令集
+
+            LOAD
+
+            STORE
+        
+        CSR指令
+
+            12bit CSR space
+
+            CSRRW
+            CSRRS
+            CSRRC
+
+
+        环境函数调用
+
+            ecall
+
+            ebreak
+
+        
+riscv-privileged-v1.10
+
+    Introduction
+
+        RISC-V Hardware Platform Terminology
+
+        RISC-V Privileged Software Stack Terminology
+
+            3种配置模式
+
+                Application  [ABI]  AEE  
+
+                Application  [ABI]  OS  [SBI]  SEE
+
+                Application  [ABI]  OS  [SBI]  Hypervisor  [HBI]  HEE
+
+        Privilege Levels
+
+            U  S  R  M
+
+
+        Debug Mode
+
+
+    Control and Status Registers
+
+
+
+    Machine-level ISA
+
+        Machine-Level CSRs
+
+            Machine ISA Register  misa
+
+            Machine Vendor ID Register  mvendorid
+
+            Machine Architecture ID Register marchid
+
+            Machine Implementation Id Register mimpid
+
+            Hart Id Register mhartid
+
+
+            Machine Status Register (mstatus)
+
+            Privilege and Global Interrupt-Enable Stack in mstatus register
+
+            Base ISA Control in mstatus Register
+
+            Memory Privilege in mstatus Register
+
+            Virtualization Support in mstatus Register
+
+            Extension Context Status in mstatus Register
+
+
+            Machine Trap Vector Base Address Register (mtvec)
+
+            Machine Trap Delegation Registers (medeleg and mideleg)
+
+            Machine Interrupt Registers (mip and mie)
+
+
+            Machine Timer Registers (mtime and mtimecmp)
+
+
+            Hardware Performance Monitor
+
+            Counter Enable Registers ([m|h|s]counteren)
+
+
+            Machine Scratch Register (mscratch)
+
+            Machine Exception Program Counter (mepc)
+
+            Machine Cause Register (mcause)
+
+            Machine Trap Value Register (mtval)
+
+
+
+        Machine-Mode Privileged Instructions
+
+            Environment Call and Breakpoint
+
+            Trap-Return Instrucitons
+
+            Wait for Interrupt
+
+
+        Reset
+
+        Mon-Maskable Interrupts
+
+
+        Physical Memory Attributes
+
+            Main Memory versus I/O versus Empty Regions
+
+            Supported Access Type PMAs
+
+            Atomicity PMAs
+
+            Memory-Ordering PMAs
+
+            Coherence and Cacheability PMAs
+
+            Idempotency PMAs
+
+        Physical Memory Protection
+
+            Physical Memroy Protection CSRs
+
+
+
+
+    Supervisor-level ISA
+
+        Supervisor CSRs
+        
+            Supervisor Status Register(sstatus)
+
+            Base ISA Control in sstatus Register
+
+            Memory Privilege in sstatus Register
+
+
+            Supervisor Trap Vector Base Address Register(stvec)
+
+            Supervisor Interrupt Registers(sip and sie)
+
+            
+            Supervisor Timers and Performance Counters
+
+            Counter-Enable Register (scounteren)
+
+            
+            Supervisor Scratch Register(sscratch)
+
+            Supervisor Exception Program Counter(sepc)
+
+            Supervisor Cause Register(scause)
+
+            Supervisor Trap Value Register(stval)
+
+            
+            Supervisor Address Translation and Protection Register(satp)
+
+
+
+        Supervisor Instructions
+
+            Supervisor Memory-Management Fence Instruction
+
+        Sv32: Page-Based 32-bit Virtual-Memory Systems
+
+            VPN[1]    VPN[0]    page offset
+            10        10        12
+
+            PPN[1]    PPN[0]    page offset
+            12        10        12
+
+            PPN[1]    PPN[0]    RSW    D A G U X W R V
+            12        10        2      1 1 1 1 1 1 1 1
+
+        Sv39: Page-Based 39-bit Virtual-Memory Systems
+
+            VPN[2]    VPN[1]    VPN[0]    page offset  (39)
+            9         9         9         12
+
+            PPN[2]    PPN[1]    PPN[0]    page offset  (56)
+            26        9         9         12
+
+            Reversed    PPN[2]    PPN[1]    PPN[0]    RSW    D A G U X W R V (64)
+            10          26        9         9         2      1 1 1 1 1 1 1 1
+
+
+        Sv48: Page-Based 48-bit Virtual-Memory Systems
+
+            VPN[3]    VPN[2]    VPN[1]    VPN[0]    page offset
+            9         9         9         9         12
+
+            PPN[3]    PPN[3]    PPN[3]    PPN[3]    page offset
+            17        9         9         9         12
+
+            Reversed    PPN[3]    PPN[2]    PPN[1]    PPN[0]    RSW    D A G U X W R V (64)
+            10          17        9         9         9         2      1 1 1 1 1 1 1 1    
+
+
+
+指令集内容
+
+    基本指令集
+
+    中断管理和特权级切换
+
+    内存管理
+
