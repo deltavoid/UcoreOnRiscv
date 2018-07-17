@@ -1,0 +1,149 @@
+
+riscv-privileged-v1.10 中断机制 笔记
+
+1. riscv架构简介
+
+1.1 Software Stack
+
+    RISCV支持3种典型的系统配置,详情见riscv-privileged-v1.10 page2 figure1.1。简单示例如下：
+
+    Application  [ABI]  AEE  
+
+    Application  [ABI]  OS  [SBI]  SEE
+
+    Application  [ABI]  OS  [SBI]  Hypervisor  [HBI]  HEE
+
+    ABI, SBI, HBI是层与层之间的接口。
+    从左到右特权级依次降低。
+
+1.2 Privilege Level
+
+    RISCV支持4种不同的特权级，并且特权级对应数字越小，权限越低。
+
+    Level    Encoding    Name              Abbreviation
+    0        00          User/Application  U
+    1        01          Supervisor        S
+    2        10          Hypervisor        H
+    3        11          Machine           M
+
+    目前实现的有U, S, M三个特权级
+
+2. riscv中断机制简介
+
+    RISCV中U, S, M三个特权级都有中断处理机制，但它们在结构上是相似的，并且相互之间是关联的。下面主要说明最为复杂的machine-level中断处理机制。
+
+    machine-level中与中断处理相关的CSR(Controlr and Staus Register)主要有：
+
+    //mstatus
+    Machine Status Register (mstatus)
+
+    //trap setup
+    Machine Trap Vector Base Address Register (mtvec)
+
+    Machine Trap Delegation Registers (medeleg and mideleg)
+
+    Machine Interrupt Registers (mip and mie)
+
+    //trap handling
+    Machine Scratch Register (mscratch)
+
+    Machine Exception Program Counter (mepc)
+
+    Machine Cause Register (mcause)
+
+    Machine Trap Value Register (mtval)
+
+    U, S, M三个特权级都具有上述结构相似的中断处理CSRs。(U态没有medeleg和mideleg)
+    mstatus管理系统的全局状态。
+    mtvec, medeleg, mideleg, mip, mie设置中断的状态。
+    mscratch, mepc, mcause, mtval参与中断处理程序的执行。
+
+
+3. riscv中断机制详解
+
+3.1 Machine Status Register (mstatus)
+
+    mstatus是rsicv系统中最为重要的寄存器，它控制着系统运行的整体配置，涉及到系统的各个方面。mstatus的受限视图形成sstatus(S态）和ustatus(u态)。
+
+    mstatus中与中断相关的位如下(RV32)，它们控制系统整体的中断开关情况。
+    12  11    10  9  8    7     6     5     4     3    2     1    0
+    MPP[1:0]  WPRI   SPP  MPIE  WPRI  SPIE  UPIE  MIE  WPRI  SIE  UIE  (WPRI表示保留）
+
+    MIE, SIE, UIE是中断开启标志，分别控制M态，S态，U态中断是否开启，是全局的中断控制标志。
+    
+    当发生中断使得特权级由y跳转到x时， xPIE被设置为xIE, xIE被设置为0， xPP被设置为y。
+
+    MRET, SRET, URET指令用于从M态，S态，U态进行中断返回。
+    设xRET执行前，xPP为y, 则xIE设置为xPIE, xPIE设置为1， 特权级转换到y, xPP设置为U。
+
+3.2 Machine Trap Vector Base Address Register (mtvec)
+
+    mtevc用于设置中断处理函数的地址。最低两位是模式位，现在有两种模式：Direct和Vectored。
+    Direct模式下，当发生中断时，pc(程序计数器)直接被设置为mtvec存储的地址。
+    Vectored模式下， 当发生中断时， pc = mtvec + 4 * cause。（cause是引起中断的原因， 是一个对中断情况进行分类的标号）
+
+3.3 Machine Trap Delegation Registers (medeleg and mideleg)
+
+    默认情况下，所有中断在M态被处理。M态的中断处理程序可以使用MRET将中断转发到低特权级去处理。
+
+    为了提高效率，可以在medeleg和mideleg中设置相应的位，使得对应的中断可以直接被低特权级处理。
+
+    当一个中断被代理到低特权级x时， 
+    xcause写入中断发生的原因；
+    xepc写入引起中断的指令的虚拟地址；
+    xPP写入中断前的特权级；
+    xPIE写入中断前的interrupt-enable bit；
+    xIE被清除；
+    mcause, mepc, mPP, mPIE不写入内容。
+
+    中断不会使得高特权级切换到低特权级。
+    即使一个中断被代理到低特权级，当中断发生在高特权级时，会由高特权级处理，而不是由低特权级处理。
+
+3.4 Machine Interrupt Registers (mip and mie)
+
+    mie (machine interrupt enable)控制更具体的中断的开关情况。
+
+    mip (machine interrupt pending)记录待处理的中断。
+
+    两者的编码如下：
+
+    mie:
+    11    10    9     8     7     6     5     4     3     2     1      0
+    MEIE  WPRI  SEIE  UEIE  MTIE  WPRI  STIE  UTIE  MSIE  WPRI  SSIE  USIE
+
+    mip:
+    11    10    9     8     7     6     5     4     3     2     1      0
+    MEIP  WIRI  SEIP  UEIP  MTIP  WIRI  STIP  UTIP  MSIP  WIRI  SSIP  USIP
+
+    xEIE:  x external intrrupt enable
+    xTIE:  x timer interrupt enable
+    xSIE:  x software interrupt enable
+    xEIP:  x external intrrupt pending
+    xTIP:  x timer interrupt pending
+    xSIP:  x software interrupt pending
+
+3.5  Machine Scratch Register (mscratch)
+
+    mscratch 用于存储指向M态线程的上下文空间的地址 以及 进入M态中断处理程序时与用户寄存器进行交换。
+    以上翻译自riscv-privileged-v1.10 page 33, 具体含义尚未理解。
+
+3.6  Machine Exception Program Counter (mepc)
+
+    mepc存储引起中断的指令的虚拟地址。
+
+3.7  Machine Cause Register (mcause)
+
+    mcause存储中断号，指明这是一个什么样的中断。
+
+    mcause的最高位表明这是一个中断(1)还是一个异常(0)。
+    具体的中断号分配见riscv-privileged-v1.10 page35。
+
+3.8  Machine Trap Value Register (mtval)
+
+    mtval存储与中断相关的值，供中断处理程序使用。
+
+    比如发生一个缺页中断时，mtval存储引起错误的地址。
+
+
+
+
