@@ -25,5 +25,7 @@ https://github.com/chyyuu/ucore_os_lab/tree/riscv64-priv-1.10
 
 
 
+os_tutorial_lab
 
+https://github.com/chyyuu/os_tutorial_lab.git
 

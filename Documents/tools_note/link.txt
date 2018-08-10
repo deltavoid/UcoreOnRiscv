@@ -1,0 +1,12 @@
+
+
+sudo /etc/ld.so.conf.d/
+
+
+sudo touch riscv64.conf
+
+vim riscv64.conf
+    /home/zqy/WorkSpace/UcoreOnRiscv/Tools/program/szx/riscv64/lib#把库的路径写进文档
+
+sudo ldconfig
+

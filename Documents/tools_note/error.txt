@@ -1,0 +1,22 @@
+
+zqy@zqy-Laptop:~/WorkSpace/UcoreOnRiscv/Ucore/ucore_os_lab/labcodes_answer/lab1$ make qemu
+qemu-system-riscv32: -machine virt: unsupported machine type
+Use -machine help to list supported machines
+Makefile:161: recipe for target 'qemu' failed
+make: *** [qemu] Error 1
+zqy@zqy-Laptop:~/WorkSpace/UcoreOnRiscv/Ucore/ucore_os_lab/labcodes_answer/lab1$ qemu-system-riscv32 -machine help
+Supported machines are:
+none                 empty machine
+sifive               RISC-V Board compatible with SiFive U500 SDK (incomplete)
+spike                RISC-V Generic Board (matching 'Spike') (default)
+zqy@zqy-Laptop:~/WorkSpace/UcoreOnRiscv/Ucore/ucore_os_lab/labcodes_answer/lab1$ source ~/.profile
+zqy@zqy-Laptop:~/WorkSpace/UcoreOnRiscv/Ucore/ucore_os_lab/labcodes_answer/lab1$ qemu-system-riscv32 -machine help
+Supported machines are:
+none                 empty machine
+sifive_e             RISC-V Board compatible with SiFive E SDK
+sifive_u             RISC-V Board compatible with SiFive U SDK
+spike_v1.10          RISC-V Spike Board (Privileged ISA v1.10) (default)
+spike_v1.9.1         RISC-V Spike Board (Privileged ISA v1.9.1)
+virt                 RISC-V VirtIO Board (Privileged spec v1.10)
+zqy@zqy-Laptop:~/WorkSpace/UcoreOnRiscv/Ucore/ucore_os_lab/labcodes_answer/lab1$
+
